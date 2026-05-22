@@ -1,195 +1,457 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promptfy - Admin Control Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-<!-- SEO TITLE -->
-<title>Free Fire Proxy Server APK Download | FF Proxy Server</title>
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- GOOGLE SEARCH CONSOLE VERIFICATION -->
-<meta name="google-site-verification" content="PwATlffuHJW9DFLUavQjipVkYxKwPgBoyL44iR_gJ1o" />
-
-<!-- SEO META -->
-<meta name="description" content="Download Free Fire Proxy Server APK for low ping, smooth gameplay and stable connection. Best FF proxy server with fast speed.">
-<meta name="keywords" content="Free Fire Proxy Server, FF Proxy APK, Free Fire Server APK, FF Proxy Download">
-<meta name="robots" content="index, follow">
-
-<!-- Open Graph -->
-<meta property="og:title" content="Free Fire Proxy Server APK Download">
-<meta property="og:description" content="Best Free Fire Proxy Server APK for smooth gameplay and low ping.">
-<meta property="og:image" content="https://i.postimg.cc/zDg87YHG/garena-free-fire-max-logo.jpg">
-<meta property="og:type" content="website">
-
-<style>
-body{
-    margin:0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    background:#f5f6fa;
-    color:#111;
-}
-.wrapper{
-    max-width:520px;
-    margin:0 auto;
-    background:#fff;
-    min-height:100vh;
-}
-.app-header{
-    display:flex;
-    padding:18px;
-    gap:14px;
-}
-.app-icon{
-    width:72px;
-    height:72px;
-    border-radius:18px;
-}
-.app-title h1{
-    margin:0;
-    font-size:20px;
-}
-.app-title p{
-    margin:6px 0 0;
-    color:#2563eb;
-    font-size:14px;
-}
-.stats{
-    display:flex;
-    justify-content:space-around;
-    padding:14px 0;
-    border-top:1px solid #eee;
-    border-bottom:1px solid #eee;
-}
-.stat{
-    text-align:center;
-    font-size:13px;
-    color:#555;
-}
-.stat b{
-    display:block;
-    font-size:15px;
-    color:#111;
-}
-.install-wrap{
-    padding:18px;
-}
-.install-btn{
-    width:100%;
-    background:#2563eb;
-    color:#fff;
-    border:none;
-    padding:15px;
-    font-size:16px;
-    border-radius:32px;
-    cursor:pointer;
-    box-shadow:0 10px 26px rgba(37,99,235,0.35);
-}
-.banner{
-    padding:18px;
-}
-.banner img{
-    width:100%;
-    border-radius:18px;
-    box-shadow:0 12px 28px rgba(0,0,0,0.18);
-}
-.about{
-    padding:18px;
-}
-.about h2{
-    font-size:18px;
-    margin-bottom:8px;
-}
-.about p{
-    font-size:14px;
-    color:#444;
-    line-height:1.6;
-}
-.action-buttons{
-    margin-top:18px;
-    display:flex;
-    gap:14px;
-}
-.action-btn{
-    flex:1;
-    padding:14px 16px;
-    border-radius:30px;
-    font-size:14px;
-    border:none;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-}
-.telegram{
-    color:#fff;
-    background:linear-gradient(135deg,#2AABEE,#229ED9,#1C8EC7);
-}
-.youtube{
-    color:#e11d48;
-    background:#fff;
-    border:1px solid #ffd6d6;
-}
-</style>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #ffffff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: #141414;
+            border: 1px solid #1e1e1e;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+        h2, h3 {
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            background: #080808;
+            border: 1px solid #1e1e1e;
+            color: #fff;
+            border-radius: 8px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        /* কাস্টম ইমেজ আপলোডার ডিজাইন */
+        input[type="file"] {
+            background: #080808;
+            padding: 8px;
+            cursor: pointer;
+        }
+        .preview-box {
+            width: 100%;
+            height: 150px;
+            border: 2px dashed #333;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none; /* ইমেজ সিলেক্ট করলে শো হবে */
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #080808;
+        }
+        .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .btn-primary {
+            width: 100%;
+            background: #ccff00;
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s ease;
+        }
+        .btn-cancel {
+            width: 100%;
+            background: #222;
+            color: #fff;
+            border: 1px solid #333;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            display: none;
+        }
+        /* Stats & Switch Styles */
+        .stats-box, .ads-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #080808;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #1e1e1e;
+            margin-bottom: 10px;
+        }
+        .stats-box span i {
+            color: #ccff00;
+            margin-right: 5px;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #ccff00;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+            background-color: #000;
+        }
+        /* Prompt List Styles */
+        .prompt-item {
+            background: #080808;
+            border: 1px solid #1e1e1e;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .prompt-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #222;
+        }
+        .prompt-details {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .prompt-details h4 {
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .action-btns {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-edit, .btn-delete {
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+        .btn-edit {
+            background: #1c2012;
+            color: #ccff00;
+            border: 1px solid #2d3319;
+        }
+        .btn-delete {
+            background: #2d1212;
+            color: #ff3333;
+            border: 1px solid #441919;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="wrapper">
-
-    <div class="app-header">
-        <img class="app-icon" src="https://i.postimg.cc/zDg87YHG/garena-free-fire-max-logo.jpg" alt="Free Fire Proxy Server">
-        <div class="app-title">
-            <h1>Free Fire Proxy Server APK</h1>
-            <p>PROXY SERVER FF_1.0.apk</p>
+    <div class="container">
+        <h3><i class="fa-solid fa-chart-pie" style="color: #ccff00;"></i> Dashboard & Settings</h3>
+        <div class="stats-box">
+            <span><i class="fa-solid fa-users"></i> Total Visitors:</span>
+            <strong id="visitorCount" style="color: #ccff00;">0</strong>
+        </div>
+        <div class="stats-box">
+            <span><i class="fa-solid fa-layer-group"></i> Total Prompts:</span>
+            <strong id="totalPromptsCount" style="color: #ccff00;">0</strong>
+        </div>
+        <div class="ads-box" style="margin-top: 15px;">
+            <span>Website Advertisement</span>
+            <label class="switch">
+                <input type="checkbox" id="adsToggle" onchange="toggleAds(this.checked)">
+                <span class="slider"></span>
+            </label>
         </div>
     </div>
 
-    <div class="stats">
-        <div class="stat"><b>1.3 GB</b>Size</div>
-        <div class="stat"><b>12+</b>Rated</div>
-        <div class="stat"><b>1B+</b>Downloads</div>
-    </div>
-
-    <div class="install-wrap">
-        <button class="install-btn" onclick="goDownload()">Download APK</button>
-    </div>
-
-    <div class="banner">
-        <img src="https://i.postimg.cc/YSgVLnKW/Screenshot-20260113-204320.png" alt="Free Fire Proxy Screenshot">
-    </div>
-
-    <div class="about">
-        <h2>About Free Fire Proxy Server APK</h2>
-        <p>
-            Free Fire Proxy Server APK helps players reduce lag, improve ping and enjoy smoother gameplay.
-            This proxy server is optimized for Free Fire and works on most Android devices without complex setup.
-        </p>
-
-        <p>
-            Join our Telegram channel for latest updates and visit our YouTube channel for tutorials and guides.
-        </p>
-
-        <div class="action-buttons">
-            <button class="action-btn telegram" onclick="openTelegram()">✈ Telegram</button>
-            <button class="action-btn youtube" onclick="openYouTube()">▶ YouTube</button>
+    <div class="container">
+        <h2 id="formTitle"><i class="fa-solid fa-plus" style="color: #ccff00;"></i> Add New Prompt</h2>
+        
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="promptTitle" placeholder="Enter title...">
         </div>
+        
+        <div class="form-group">
+            <label>Upload Image (গ্যালারি থেকে ছবি সিলেক্ট করুন)</label>
+            <input type="file" id="promptFile" accept="image/*" onchange="previewAndConvertImage(this)">
+            <div class="preview-box" id="imagePreviewContainer">
+                <img id="imagePreview" src="" alt="Selected Image Preview">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Prompt Text</label>
+            <textarea id="promptText" rows="4" placeholder="Enter AI prompt..."></textarea>
+        </div>
+        
+        <button class="btn-primary" id="submitBtn" onclick="handleFormSubmit()">Upload Prompt</button>
+        <button class="btn-cancel" id="cancelEditBtn" onclick="cancelEditMode()">Cancel Edit</button>
     </div>
 
-</div>
+    <div class="container">
+        <h3><i class="fa-solid fa-list-check" style="color: #ccff00;"></i> Manage Prompts</h3>
+        <div id="adminPromptList">Loading prompts...</div>
+    </div>
 
-<script>
-function goDownload(){
-    window.location.href = "https://t.me/apk28bot";
-}
-function openTelegram(){
-    window.location.href = "https://t.me/apk28bot";
-}
-function openYouTube(){
-    window.location.href = "https://www.youtube.com/@TRFFINITY";
-}
-</script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBx41WBQnxRsjrylnXoxWG2Yc8oHaB_5XM",
+            authDomain: "hhhhjkk9-3063d.firebaseapp.com",
+            databaseURL: "https://hhhhjkk9-3063d-default-rtdb.firebaseio.com",
+            projectId: "hhhhjkk9-3063d",
+            storageBucket: "hhhhjkk9-3063d.firebasestorage.app",
+            messagingSenderId: "69289174757",
+            appId: "1:69289174757:web:01fec92c7e03c3f9e3160c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
+        // গলোবাল ভ্যারিয়েবল
+        let editMode = false;
+        let currentEditId = null;
+        let localPromptsCache = {};
+        let encodedImageString = ""; // এখানে ইমেজের ডাটা স্টোর হবে
+
+        // ১. ভিজিটর সংখ্যা ট্র্যাকিং
+        database.ref('visitors_count').on('value', function(snapshot) {
+            document.getElementById('visitorCount').innerText = snapshot.val() || 0;
+        });
+
+        // ২. ডাটাবেজ থেকে লাইভ অ্যাড স্ট্যাটাস নিয়ে সুইচ সেট করা
+        database.ref('settings/ads_enabled').on('value', function(snapshot) {
+            const isEnabled = snapshot.val() !== false; 
+            document.getElementById('adsToggle').checked = isEnabled;
+        });
+
+        // ৩. অ্যাড অন/অফ করার ফাংশন
+        function toggleAds(status) {
+            database.ref('settings').update({
+                ads_enabled: status
+            }).then(() => {
+                alert(status ? "বিজ্ঞাপন চালু করা হয়েছে! 🟢" : "বিজ্ঞাপন বন্ধ করা হয়েছে! 🔴");
+            });
+        }
+
+        // ৪. ইমেজ সিলেক্ট করলে প্রিভিউ দেখানো এবং ডাটা এনকোড করার ফাংশন
+        function previewAndConvertImage(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    encodedImageString = e.target.result; // ছবি কনভার্ট হয়ে রেডি হলো
+                    
+                    // প্রিভিউ বক্সে ছবি শো করানো
+                    document.getElementById('imagePreview').src = encodedImageString;
+                    document.getElementById('imagePreviewContainer').style.display = 'flex';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // ৫. ফর্ম সাবমিট হ্যান্ডলার (আপলোড এবং আপডেট)
+        function handleFormSubmit() {
+            const title = document.getElementById('promptTitle').value.trim();
+            const prompt = document.getElementById('promptText').value.trim();
+
+            if (!title || !prompt || !encodedImageString) {
+                alert("দয়া করে টাইটেল, প্রম্পট টেক্সট এবং একটি ইমেজ আপলোড করুন!");
+                return;
+            }
+
+            if (editMode && currentEditId) {
+                // আপডেট করার লজিক
+                database.ref('prompts').child(currentEditId).update({
+                    title: title,
+                    image: encodedImageString,
+                    prompt: prompt
+                }).then(() => {
+                    alert("প্রম্পটটি সফলভাবে আপডেট করা হয়েছে! ✏️");
+                    cancelEditMode();
+                }).catch(err => alert("আপডেট ব্যর্থ হয়েছে: " + err.message));
+
+            } else {
+                // নতুন আপলোড করার লজিক
+                const newPromptRef = database.ref('prompts').push();
+                newPromptRef.set({
+                    title: title,
+                    image: encodedImageString,
+                    prompt: prompt,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    alert("নতুন প্রম্পট সফলভাবে আপলোড হয়েছে! 🎉");
+                    clearForm();
+                }).catch(err => alert("আপলোড ব্যর্থ হয়েছে: " + err.message));
+            }
+        }
+
+        // ৬. এডিট মোড চালু করা
+        function startEdit(id) {
+            const item = localPromptsCache[id];
+            if (!item) return;
+
+            editMode = true;
+            currentEditId = id;
+
+            document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-pen-to-square" style="color: #ccff00;"></i> Edit Prompt`;
+            document.getElementById('submitBtn').innerText = "Update Prompt";
+            document.getElementById('cancelEditBtn').style.display = "block";
+
+            // ডাটা লোড করা
+            document.getElementById('promptTitle').value = item.title;
+            document.getElementById('promptText').value = item.prompt;
+            encodedImageString = item.image; // আগের ইমেজ ব্যাকআপে রাখা
+
+            // প্রিভিউ বক্স শো করানো
+            document.getElementById('imagePreview').src = item.image;
+            document.getElementById('imagePreviewContainer').style.display = 'flex';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ৭. এডিট মোড বাতিল করা
+        function cancelEditMode() {
+            editMode = false;
+            currentEditId = null;
+            document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-plus" style="color: #ccff00;"></i> Add New Prompt`;
+            document.getElementById('submitBtn').innerText = "Upload Prompt";
+            document.getElementById('cancelEditBtn').style.display = "none";
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('promptTitle').value = "";
+            document.getElementById('promptText').value = "";
+            document.getElementById('promptFile').value = "";
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+            document.getElementById('imagePreview').src = "";
+            encodedImageString = "";
+        }
+
+        // ৮. লাইভ প্রম্পট লিস্ট শো করা
+        database.ref('prompts').orderByChild('timestamp').on('value', function(snapshot) {
+            const listContainer = document.getElementById('adminPromptList');
+            listContainer.innerHTML = "";
+            
+            let count = 0;
+            let itemsHTML = "";
+            localPromptsCache = {};
+
+            snapshot.forEach(childSnapshot => {
+                const id = childSnapshot.key;
+                const item = childSnapshot.val();
+                localPromptsCache[id] = item;
+                count++;
+
+                itemsHTML = `
+                    <div class="prompt-item">
+                        <img src="${item.image}" alt="">
+                        <div class="prompt-details">
+                            <h4>${item.title}</h4>
+                        </div>
+                        <div class="action-btns">
+                            <button class="btn-edit" onclick="startEdit('${id}')" title="Edit">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="btn-delete" onclick="deletePrompt('${id}')" title="Delete">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                ` + itemsHTML;
+            });
+
+            document.getElementById('totalPromptsCount').innerText = count;
+
+            if (count === 0) {
+                listContainer.innerHTML = "<p style='color: #7a7a7a; text-align: center;'>কোনো প্রম্পট পাওয়া যায়নি।</p>";
+            } else {
+                listContainer.innerHTML = itemsHTML;
+            }
+        });
+
+        // ৯. প্রম্পট ডিলিট করা
+        function deletePrompt(id) {
+            if (confirm("আপনি কি নিশ্চিত যে এই প্রম্পটটি ডিলিট করতে চান?")) {
+                if(currentEditId === id) {
+                    cancelEditMode();
+                }
+                
+                database.ref('prompts').child(id).remove().then(() => {
+                    alert("প্রম্পটটি ডিলিট করা হয়েছে! 🗑️");
+                }).catch(err => {
+                    alert("ডিলিট করা যায়নি: " + err.message);
+                });
+            }
+        }
+    </script>
 </body>
 </html>
