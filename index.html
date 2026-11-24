@@ -1,457 +1,615 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Promptfy - Admin Control Panel</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAGOR AI PHOTO TOOLS</title>
 
-    <style>
-        body {
-            background-color: #0d0d0d;
-            color: #ffffff;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 450px;
-            background: #141414;
-            border: 1px solid #1e1e1e;
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-        }
-        h2, h3 {
-            margin-bottom: 15px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            color: #a0a0a0;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            background: #080808;
-            border: 1px solid #1e1e1e;
-            color: #fff;
-            border-radius: 8px;
-            outline: none;
-            box-sizing: border-box;
-        }
-        /* কাস্টম ইমেজ আপলোডার ডিজাইন */
-        input[type="file"] {
-            background: #080808;
-            padding: 8px;
-            cursor: pointer;
-        }
-        .preview-box {
-            width: 100%;
-            height: 150px;
-            border: 2px dashed #333;
-            border-radius: 8px;
-            margin-top: 10px;
-            display: none; /* ইমেজ সিলেক্ট করলে শো হবে */
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            background: #080808;
-        }
-        .preview-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .btn-primary {
-            width: 100%;
-            background: #ccff00;
-            color: #000;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.2s ease;
-        }
-        .btn-cancel {
-            width: 100%;
-            background: #222;
-            color: #fff;
-            border: 1px solid #333;
-            padding: 8px;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-top: 8px;
-            display: none;
-        }
-        /* Stats & Switch Styles */
-        .stats-box, .ads-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #080808;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid #1e1e1e;
-            margin-bottom: 10px;
-        }
-        .stats-box span i {
-            color: #ccff00;
-            margin-right: 5px;
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 26px;
-        }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #333;
-            transition: .4s;
-            border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: #ccff00;
-        }
-        input:checked + .slider:before {
-            transform: translateX(24px);
-            background-color: #000;
-        }
-        /* Prompt List Styles */
-        .prompt-item {
-            background: #080808;
-            border: 1px solid #1e1e1e;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .prompt-item img {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 6px;
-            background: #222;
-        }
-        .prompt-details {
-            flex-grow: 1;
-            overflow: hidden;
-        }
-        .prompt-details h4 {
-            font-size: 0.9rem;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .action-btns {
-            display: flex;
-            gap: 6px;
-        }
-        .btn-edit, .btn-delete {
-            border: none;
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-        }
-        .btn-edit {
-            background: #1c2012;
-            color: #ccff00;
-            border: 1px solid #2d3319;
-        }
-        .btn-delete {
-            background: #2d1212;
-            color: #ff3333;
-            border: 1px solid #441919;
-        }
-    </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ background:#080a12;color:#fff;
+ font-family:Arial,sans-serif;
+}
+header{
+ padding:23px 15px;text-align:center;
+ background:#111522;border-bottom:1px solid #292e40;
+}
+.logo{font-size:24px;font-weight:900;color:#9583ff}
+header p{font-size:12px;color:#aaa;margin-top:8px}
+.container{max-width:1000px;margin:auto;padding:18px}
+.card{
+ background:#111522;border:1px solid #282e40;
+ border-radius:14px;padding:18px;margin-bottom:17px;
+}
+h3{font-size:16px;margin-bottom:15px}
+.upload{
+ display:block;text-align:center;padding:35px 12px;
+ border:2px dashed #7563e8;border-radius:13px;
+ background:#19172b;cursor:pointer;
+}
+.upload b{font-size:42px;color:#9684ff}
+.upload p{font-size:13px;color:#aaa;margin-top:9px}
+input[type=file]{display:none}
+.stats{
+ display:flex;justify-content:space-between;
+ color:#aaa;font-size:13px;margin-top:14px;
+}
+button{
+ border:0;border-radius:9px;padding:13px;
+ color:white;background:#725cf0;
+ font-weight:bold;cursor:pointer;
+}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:active{opacity:.7}
+.actions{
+ display:grid;grid-template-columns:1fr 1fr;
+ gap:10px;margin-top:16px;
+}
+.green{background:#07986c}
+.gray{background:#283147}
+.red{background:#b63b52}
+.blue{background:#2769c7}
+.photos{
+ display:grid;grid-template-columns:repeat(3,1fr);
+ gap:12px;
+}
+.photo{
+ background:#191f2e;border:1px solid #30374b;
+ border-radius:11px;overflow:hidden;
+}
+.photo img{
+ width:100%;height:145px;
+ object-fit:cover;background:#080a12;
+}
+.details{padding:10px}
+.filename{
+ font-size:12px;color:#ddd;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ margin-bottom:8px;
+}
+.status{font-size:11px;color:#9c8aff;margin-bottom:9px}
+.photo button{width:100%;padding:9px;font-size:11px}
+.photo .remove{margin-top:6px;background:#8c3548}
+select{
+ width:100%;padding:12px;
+ background:#20263a;color:white;
+ border:1px solid #343c52;border-radius:8px;
+}
+.option-box{
+ display:flex;align-items:center;gap:10px;
+ margin-top:14px;padding:12px;
+ background:#191f2e;border:1px solid #30374b;
+ border-radius:9px;cursor:pointer;
+ font-size:13px;color:#e5e7eb;
+}
+.option-box input[type=checkbox]{
+ width:17px;height:17px;
+ accent-color:#07986c;cursor:pointer;
+}
+.info{font-size:12px;color:#999;line-height:1.7;margin-top:12px}
+.progress{
+ width:100%;height:7px;background:#252b3d;
+ border-radius:20px;overflow:hidden;margin-top:12px;
+}
+.bar{width:0;height:100%;background:#8a75ff}
+footer{text-align:center;padding:25px;color:#777;font-size:12px}
+@media(max-width:600px){
+ .photos{grid-template-columns:repeat(2,1fr)}
+ .photo img{height:125px}
+ .container{padding:12px}
+}
+@media(max-width:350px){
+ .photos{grid-template-columns:1fr}
+}
+</style>
 </head>
+
 <body>
 
-    <div class="container">
-        <h3><i class="fa-solid fa-chart-pie" style="color: #ccff00;"></i> Dashboard & Settings</h3>
-        <div class="stats-box">
-            <span><i class="fa-solid fa-users"></i> Total Visitors:</span>
-            <strong id="visitorCount" style="color: #ccff00;">0</strong>
-        </div>
-        <div class="stats-box">
-            <span><i class="fa-solid fa-layer-group"></i> Total Prompts:</span>
-            <strong id="totalPromptsCount" style="color: #ccff00;">0</strong>
-        </div>
-        <div class="ads-box" style="margin-top: 15px;">
-            <span>Website Advertisement</span>
-            <label class="switch">
-                <input type="checkbox" id="adsToggle" onchange="toggleAds(this.checked)">
-                <span class="slider"></span>
-            </label>
-        </div>
-    </div>
+<header>
+ <div class="logo">SAGOR AI PHOTO TOOLS</div>
+ <p>MULTI PHOTO EDITOR, AUTO ENHANCER & METADATA CLEANER</p>
+</header>
 
-    <div class="container">
-        <h2 id="formTitle"><i class="fa-solid fa-plus" style="color: #ccff00;"></i> Add New Prompt</h2>
-        
-        <div class="form-group">
-            <label>Title</label>
-            <input type="text" id="promptTitle" placeholder="Enter title...">
-        </div>
-        
-        <div class="form-group">
-            <label>Upload Image (গ্যালারি থেকে ছবি সিলেক্ট করুন)</label>
-            <input type="file" id="promptFile" accept="image/*" onchange="previewAndConvertImage(this)">
-            <div class="preview-box" id="imagePreviewContainer">
-                <img id="imagePreview" src="" alt="Selected Image Preview">
-            </div>
-        </div>
-        
-        <div class="form-group">
-            <label>Prompt Text</label>
-            <textarea id="promptText" rows="4" placeholder="Enter AI prompt..."></textarea>
-        </div>
-        
-        <button class="btn-primary" id="submitBtn" onclick="handleFormSubmit()">Upload Prompt</button>
-        <button class="btn-cancel" id="cancelEditBtn" onclick="cancelEditMode()">Cancel Edit</button>
-    </div>
+<div class="container">
 
-    <div class="container">
-        <h3><i class="fa-solid fa-list-check" style="color: #ccff00;"></i> Manage Prompts</h3>
-        <div id="adminPromptList">Loading prompts...</div>
-    </div>
+<div class="card">
+ <h3>Upload Multiple Photos</h3>
 
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBx41WBQnxRsjrylnXoxWG2Yc8oHaB_5XM",
-            authDomain: "hhhhjkk9-3063d.firebaseapp.com",
-            databaseURL: "https://hhhhjkk9-3063d-default-rtdb.firebaseio.com",
-            projectId: "hhhhjkk9-3063d",
-            storageBucket: "hhhhjkk9-3063d.firebasestorage.app",
-            messagingSenderId: "69289174757",
-            appId: "1:69289174757:web:01fec92c7e03c3f9e3160c"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+ <label class="upload" for="files">
+  <b>＋</b>
+  <p>Click to select multiple photos</p>
+  <p>JPG • PNG • WEBP | Maximum 50 photos</p>
+ </label>
 
-        // গলোবাল ভ্যারিয়েবল
-        let editMode = false;
-        let currentEditId = null;
-        let localPromptsCache = {};
-        let encodedImageString = ""; // এখানে ইমেজের ডাটা স্টোর হবে
+ <input type="file" id="files" multiple
+ accept="image/jpeg,image/png,image/webp">
 
-        // ১. ভিজিটর সংখ্যা ট্র্যাকিং
-        database.ref('visitors_count').on('value', function(snapshot) {
-            document.getElementById('visitorCount').innerText = snapshot.val() || 0;
-        });
+ <div class="stats">
+  <span id="count">0 Photos Selected</span>
+  <span id="size">0 MB</span>
+ </div>
 
-        // ২. ডাটাবেজ থেকে লাইভ অ্যাড স্ট্যাটাস নিয়ে সুইচ সেট করা
-        database.ref('settings/ads_enabled').on('value', function(snapshot) {
-            const isEnabled = snapshot.val() !== false; 
-            document.getElementById('adsToggle').checked = isEnabled;
-        });
+ <div class="actions">
+  <button class="gray" onclick="clearAll()">Clear All</button>
+  <button class="green" onclick="document.getElementById('files').click()">+ Add More</button>
+ </div>
+</div>
 
-        // ৩. অ্যাড অন/অফ করার ফাংশন
-        function toggleAds(status) {
-            database.ref('settings').update({
-                ads_enabled: status
-            }).then(() => {
-                alert(status ? "বিজ্ঞাপন চালু করা হয়েছে! 🟢" : "বিজ্ঞাপন বন্ধ করা হয়েছে! 🔴");
-            });
-        }
+<div class="card">
+ <h3>Auto Edit Settings</h3>
 
-        // ৪. ইমেজ সিলেক্ট করলে প্রিভিউ দেখানো এবং ডাটা এনকোড করার ফাংশন
-        function previewAndConvertImage(input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    encodedImageString = e.target.result; // ছবি কনভার্ট হয়ে রেডি হলো
-                    
-                    // প্রিভিউ বক্সে ছবি শো করানো
-                    document.getElementById('imagePreview').src = encodedImageString;
-                    document.getElementById('imagePreviewContainer').style.display = 'flex';
-                }
-                reader.readAsDataURL(file);
-            }
-        }
+ <p class="info">
+  Auto Edit সব নির্বাচিত ছবিতে স্বয়ংক্রিয়ভাবে Brightness,
+  Contrast এবং Saturation উন্নত করবে এবং Canvas রেন্ডারের মাধ্যমে মেটাডাটা পরিষ্কার করবে।
+ </p>
 
-        // ৫. ফর্ম সাবমিট হ্যান্ডলার (আপলোড এবং আপডেট)
-        function handleFormSubmit() {
-            const title = document.getElementById('promptTitle').value.trim();
-            const prompt = document.getElementById('promptText').value.trim();
+ <div style="margin-top:15px">
+  <label style="font-size:13px;color:#ccc">Export Format</label>
+  <select id="format" style="margin-top:8px">
+   <option value="image/jpeg">JPG</option>
+   <option value="image/png">PNG</option>
+   <option value="image/webp">WEBP</option>
+  </select>
+ </div>
 
-            if (!title || !prompt || !encodedImageString) {
-                alert("দয়া করে টাইটেল, প্রম্পট টেক্সট এবং একটি ইমেজ আপলোড করুন!");
-                return;
-            }
+ <label class="option-box" for="stripMeta">
+  <input type="checkbox" id="stripMeta" checked>
+  <span>Strip AI Metadata (EXIF / XMP / C2PA Tags)</span>
+ </label>
 
-            if (editMode && currentEditId) {
-                // আপডেট করার লজিক
-                database.ref('prompts').child(currentEditId).update({
-                    title: title,
-                    image: encodedImageString,
-                    prompt: prompt
-                }).then(() => {
-                    alert("প্রম্পটটি সফলভাবে আপডেট করা হয়েছে! ✏️");
-                    cancelEditMode();
-                }).catch(err => alert("আপডেট ব্যর্থ হয়েছে: " + err.message));
+ <div class="actions">
+  <button onclick="autoAll()" class="green" id="autoBtn">
+   ✨ AUTO EDIT ALL
+  </button>
+  <button onclick="resetAll()" class="gray">
+   RESET ALL
+  </button>
+ </div>
 
-            } else {
-                // নতুন আপলোড করার লজিক
-                const newPromptRef = database.ref('prompts').push();
-                newPromptRef.set({
-                    title: title,
-                    image: encodedImageString,
-                    prompt: prompt,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                }).then(() => {
-                    alert("নতুন প্রম্পট সফলভাবে আপলোড হয়েছে! 🎉");
-                    clearForm();
-                }).catch(err => alert("আপলোড ব্যর্থ হয়েছে: " + err.message));
-            }
-        }
+ <div class="progress">
+  <div class="bar" id="bar"></div>
+ </div>
 
-        // ৬. এডিট মোড চালু করা
-        function startEdit(id) {
-            const item = localPromptsCache[id];
-            if (!item) return;
+ <p class="info" id="progressText">Waiting for photos...</p>
+</div>
 
-            editMode = true;
-            currentEditId = id;
+<div class="card">
+ <h3>Photo Gallery</h3>
 
-            document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-pen-to-square" style="color: #ccff00;"></i> Edit Prompt`;
-            document.getElementById('submitBtn').innerText = "Update Prompt";
-            document.getElementById('cancelEditBtn').style.display = "block";
+ <div class="stats" style="margin-bottom:15px">
+  <span>Selected Photos</span>
+  <span id="editedCount">Edited: 0</span>
+ </div>
 
-            // ডাটা লোড করা
-            document.getElementById('promptTitle').value = item.title;
-            document.getElementById('promptText').value = item.prompt;
-            encodedImageString = item.image; // আগের ইমেজ ব্যাকআপে রাখা
+ <div class="photos" id="gallery"></div>
 
-            // প্রিভিউ বক্স শো করানো
-            document.getElementById('imagePreview').src = item.image;
-            document.getElementById('imagePreviewContainer').style.display = 'flex';
+ <p class="info" id="empty">
+  Upload photos to see them here.
+ </p>
+</div>
 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+<div class="card">
+ <h3>Download All Photos</h3>
 
-        // ৭. এডিট মোড বাতিল করা
-        function cancelEditMode() {
-            editMode = false;
-            currentEditId = null;
-            document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-plus" style="color: #ccff00;"></i> Add New Prompt`;
-            document.getElementById('submitBtn').innerText = "Upload Prompt";
-            document.getElementById('cancelEditBtn').style.display = "none";
-            clearForm();
-        }
+ <div class="actions">
+  <button class="green" id="downloadBtn" onclick="downloadAll()">
+   DOWNLOAD ALL ZIP
+  </button>
 
-        function clearForm() {
-            document.getElementById('promptTitle').value = "";
-            document.getElementById('promptText').value = "";
-            document.getElementById('promptFile').value = "";
-            document.getElementById('imagePreviewContainer').style.display = 'none';
-            document.getElementById('imagePreview').src = "";
-            encodedImageString = "";
-        }
+  <button class="blue" onclick="downloadIndividual()">
+   DOWNLOAD ONE BY ONE
+  </button>
+ </div>
 
-        // ৮. লাইভ প্রম্পট লিস্ট শো করা
-        database.ref('prompts').orderByChild('timestamp').on('value', function(snapshot) {
-            const listContainer = document.getElementById('adminPromptList');
-            listContainer.innerHTML = "";
-            
-            let count = 0;
-            let itemsHTML = "";
-            localPromptsCache = {};
+ <p class="info">
+  ZIP ডাউনলোডের জন্য ইন্টারনেট সংযোগ প্রয়োজন হতে পারে।
+  সব ছবি প্রথমে তোমার ডিভাইসের ব্রাউজারেই প্রসেস হবে।
+ </p>
+</div>
 
-            snapshot.forEach(childSnapshot => {
-                const id = childSnapshot.key;
-                const item = childSnapshot.val();
-                localPromptsCache[id] = item;
-                count++;
+<div class="card">
+ <h3>Privacy Notice</h3>
+ <p class="info">
+  তোমার ছবিগুলো কোনো সার্ভারে পাঠানো হয় না।
+  এই ওয়েবসাইট Photo Enhancement করে এবং Canvas-এ নতুন করে রেন্ডার করে
+  ফাইলের ভেতরের EXIF, XMP ও C2PA মেটাডাটা মুছে ফেলে। তবে দৃশ্যমান ওয়াটারমার্ক বা
+  পিক্সেল-ভিত্তিক AI ডিটেকশন পুরোপুরি এড়াতে ছবি ক্রপ করা বা অ্যাপের পোস্ট সেটিংস যাচাই করা ভালো।
+ </p>
+</div>
 
-                itemsHTML = `
-                    <div class="prompt-item">
-                        <img src="${item.image}" alt="">
-                        <div class="prompt-details">
-                            <h4>${item.title}</h4>
-                        </div>
-                        <div class="action-btns">
-                            <button class="btn-edit" onclick="startEdit('${id}')" title="Edit">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button class="btn-delete" onclick="deletePrompt('${id}')" title="Delete">
-                                <i class="fa-regular fa-trash-can"></i>
-                            </button>
-                        </div>
-                    </div>
-                ` + itemsHTML;
-            });
+</div>
 
-            document.getElementById('totalPromptsCount').innerText = count;
+<footer>
+© 2026 SAGOR AI PHOTO TOOLS
+</footer>
 
-            if (count === 0) {
-                listContainer.innerHTML = "<p style='color: #7a7a7a; text-align: center;'>কোনো প্রম্পট পাওয়া যায়নি।</p>";
-            } else {
-                listContainer.innerHTML = itemsHTML;
-            }
-        });
+<script>
 
-        // ৯. প্রম্পট ডিলিট করা
-        function deletePrompt(id) {
-            if (confirm("আপনি কি নিশ্চিত যে এই প্রম্পটটি ডিলিট করতে চান?")) {
-                if(currentEditId === id) {
-                    cancelEditMode();
-                }
-                
-                database.ref('prompts').child(id).remove().then(() => {
-                    alert("প্রম্পটটি ডিলিট করা হয়েছে! 🗑️");
-                }).catch(err => {
-                    alert("ডিলিট করা যায়নি: " + err.message);
-                });
-            }
-        }
-    </script>
+let photos=[];
+const input=document.getElementById('files');
+
+input.addEventListener('change',async function(){
+
+ const selected=Array.from(this.files);
+ let added=0;
+
+ for(const file of selected){
+
+  if(photos.length>=50){
+   alert('Maximum 50 photos allowed.');
+   break;
+  }
+
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
+   continue;
+  }
+
+  if(file.size>20*1024*1024){
+   alert(file.name+' is larger than 20 MB.');
+   continue;
+  }
+
+  const url=URL.createObjectURL(file);
+
+  try{
+   const img=await loadImage(url);
+
+   photos.push({
+    id:crypto.randomUUID(),
+    file:file,
+    original:img,
+    originalURL:url,
+    editedBlob:null,
+    previewURL:url,
+    edited:false,
+    metaStripped:false
+   });
+
+   added++;
+
+  }catch(e){
+   URL.revokeObjectURL(url);
+  }
+ }
+
+ this.value='';
+ render();
+
+});
+
+function loadImage(url){
+ return new Promise((resolve,reject)=>{
+  const img=new Image();
+  img.onload=()=>resolve(img);
+  img.onerror=reject;
+  img.src=url;
+ });
+}
+
+function render(){
+
+ const gallery=document.getElementById('gallery');
+ gallery.innerHTML='';
+
+ let total=0;
+ let edited=0;
+
+ photos.forEach((p,index)=>{
+
+  total+=p.file.size;
+  if(p.edited)edited++;
+
+  const div=document.createElement('div');
+  div.className='photo';
+
+  const img=document.createElement('img');
+  img.src=p.previewURL;
+  img.alt='Photo '+(index+1);
+
+  const details=document.createElement('div');
+  details.className='details';
+
+  const name=document.createElement('div');
+  name.className='filename';
+  name.textContent=p.file.name;
+
+  const status=document.createElement('div');
+  status.className='status';
+  status.textContent=p.edited
+   ? (p.metaStripped ? '✓ Edited & Metadata Cleaned' : '✓ Auto Edited')
+   : 'Original Photo';
+
+  const edit=document.createElement('button');
+  edit.textContent='AUTO EDIT';
+  edit.onclick=()=>autoOne(index);
+
+  const download=document.createElement('button');
+  download.className='blue';
+  download.style.marginTop='6px';
+  download.textContent='DOWNLOAD';
+  download.onclick=()=>downloadOne(index);
+
+  const remove=document.createElement('button');
+  remove.className='remove';
+  remove.textContent='REMOVE';
+  remove.onclick=()=>removeOne(index);
+
+  details.append(name,status,edit,download,remove);
+  div.append(img,details);
+  gallery.appendChild(div);
+
+ });
+
+ document.getElementById('count').textContent=
+ photos.length+' Photos Selected';
+
+ document.getElementById('size').textContent=
+ (total/1024/1024).toFixed(2)+' MB';
+
+ document.getElementById('editedCount').textContent=
+ 'Edited: '+edited;
+
+ document.getElementById('empty').style.display=
+ photos.length?'none':'block';
+
+ document.getElementById('downloadBtn').disabled=
+ photos.length===0;
+}
+
+async function processPhoto(index){
+
+ const p=photos[index];
+ const stripMeta=document.getElementById('stripMeta').checked;
+
+ const canvas=document.createElement('canvas');
+ canvas.width=p.original.naturalWidth;
+ canvas.height=p.original.naturalHeight;
+
+ const ctx=canvas.getContext('2d');
+
+ // Automatic photo enhancement
+ ctx.filter=
+ 'brightness(1.07) contrast(1.10) saturate(1.08)';
+
+ ctx.drawImage(p.original,0,0);
+
+ // Reset filter before pixel-level metadata/tag cleanup
+ ctx.filter='none';
+
+ if(stripMeta && canvas.width>0 && canvas.height>0){
+  const pixel=ctx.getImageData(0,0,1,1);
+  pixel.data[0]=pixel.data[0]^1;
+  ctx.putImageData(pixel,0,0);
+ }
+
+ const format=document.getElementById('format').value;
+
+ const blob=await new Promise(resolve=>{
+  canvas.toBlob(resolve,format,0.92);
+ });
+
+ if(!blob)throw new Error('Export failed');
+
+ return {blob,metaStripped:stripMeta};
+}
+
+async function autoOne(index){
+
+ const btn=document.getElementById('autoBtn');
+ btn.disabled=true;
+
+ try{
+
+  const p=photos[index];
+  const {blob,metaStripped}=await processPhoto(index);
+
+  if(p.previewURL!==p.originalURL){
+   URL.revokeObjectURL(p.previewURL);
+  }
+
+  p.editedBlob=blob;
+  p.previewURL=URL.createObjectURL(blob);
+  p.edited=true;
+  p.metaStripped=metaStripped;
+
+  render();
+
+ }catch(e){
+  alert('Editing failed.');
+ }
+
+ btn.disabled=false;
+}
+
+async function autoAll(){
+
+ if(!photos.length){
+  alert('Please upload photos first.');
+  return;
+ }
+
+ const btn=document.getElementById('autoBtn');
+ btn.disabled=true;
+
+ const bar=document.getElementById('bar');
+ const text=document.getElementById('progressText');
+
+ let done=0;
+
+ try{
+
+  for(let i=0;i<photos.length;i++){
+
+   const p=photos[i];
+   const {blob,metaStripped}=await processPhoto(i);
+
+   if(p.previewURL!==p.originalURL){
+    URL.revokeObjectURL(p.previewURL);
+   }
+
+   p.editedBlob=blob;
+   p.previewURL=URL.createObjectURL(blob);
+   p.edited=true;
+   p.metaStripped=metaStripped;
+
+   done++;
+
+   bar.style.width=(done/photos.length*100)+'%';
+   text.textContent='Processing '+done+' / '+photos.length;
+
+   render();
+  }
+
+  text.textContent='✓ All photos edited & metadata cleaned!';
+
+ }catch(e){
+  text.textContent='Some photos could not be processed.';
+  alert('Editing failed. Please try again.');
+ }
+
+ btn.disabled=false;
+}
+
+async function resetAll(){
+
+ photos.forEach(p=>{
+  if(p.previewURL!==p.originalURL){
+   URL.revokeObjectURL(p.previewURL);
+  }
+
+  p.editedBlob=null;
+  p.previewURL=p.originalURL;
+  p.edited=false;
+  p.metaStripped=false;
+ });
+
+ document.getElementById('bar').style.width='0%';
+ document.getElementById('progressText').textContent='All photos reset.';
+ render();
+}
+
+function removeOne(index){
+
+ const p=photos[index];
+
+ URL.revokeObjectURL(p.originalURL);
+
+ if(p.previewURL!==p.originalURL){
+  URL.revokeObjectURL(p.previewURL);
+ }
+
+ photos.splice(index,1);
+ render();
+}
+
+function clearAll(){
+
+ photos.forEach(p=>{
+  URL.revokeObjectURL(p.originalURL);
+
+  if(p.previewURL!==p.originalURL){
+   URL.revokeObjectURL(p.previewURL);
+  }
+ });
+
+ photos=[];
+ document.getElementById('bar').style.width='0%';
+ document.getElementById('progressText').textContent='Waiting for photos...';
+ render();
+}
+
+function downloadOne(index){
+
+ const p=photos[index];
+ const blob=p.editedBlob||p.file;
+
+ saveBlob(blob,'SAGOR_'+(index+1)+'.'+extension(blob.type));
+}
+
+function extension(type){
+ return type==='image/png'?'png':
+ type==='image/webp'?'webp':'jpg';
+}
+
+function saveBlob(blob,name){
+
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+
+ a.href=url;
+ a.download=name;
+ a.click();
+
+ setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+
+async function downloadAll(){
+
+ if(!photos.length)return;
+
+ if(!window.JSZip){
+  alert('ZIP library unavailable. Please check your internet connection.');
+  return;
+ }
+
+ const btn=document.getElementById('downloadBtn');
+ btn.disabled=true;
+
+ try{
+
+  const zip=new JSZip();
+
+  photos.forEach((p,i)=>{
+
+   const blob=p.editedBlob||p.file;
+
+   zip.file(
+    'SAGOR_PHOTO_'+(i+1)+'.'+extension(blob.type),
+    blob
+   );
+
+  });
+
+  const result=await zip.generateAsync({
+   type:'blob',
+   compression:'DEFLATE'
+  },metadata=>{
+   document.getElementById('progressText').textContent=
+   'Creating ZIP: '+Math.round(metadata.percent)+'%';
+  });
+
+  saveBlob(result,'SAGOR_PHOTOS.zip');
+
+  document.getElementById('progressText').textContent=
+  '✓ ZIP download ready!';
+
+ }catch(e){
+  alert('ZIP creation failed.');
+ }
+
+ btn.disabled=false;
+}
+
+async function downloadIndividual(){
+
+ if(!photos.length)return;
+
+ for(let i=0;i<photos.length;i++){
+
+  downloadOne(i);
+
+  await new Promise(resolve=>setTimeout(resolve,500));
+ }
+}
+
+render();
+
+</script>
+
 </body>
 </html>
+
